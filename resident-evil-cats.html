@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RESIDENT EVIL: CAT PROTOCOL</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #000;
+            color: #fff;
+            font-family: 'Orbitron', monospace;
+            overflow: hidden;
+            cursor: crosshair;
+            position: relative;
+        }
+
+        /* CRT Scanline Effect */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                transparent 50%,
+                rgba(0, 0, 0, 0.1) 50%
+            );
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 1000;
+            animation: scanline 0.1s linear infinite;
+        }
+
+        @keyframes scanline {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(4px); }
+        }
+
+        /* Main Container */
+        .container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Status Bar */
+        .status-bar {
+            background: #000;
+            border: 2px solid #fff;
+            border-bottom: none;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-value {
+            color: #fff;
+            font-weight: 900;
+        }
+
+        /* Menu Interface */
+        .menu-interface {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #000;
+            border: 3px solid #fff;
+            padding: 30px;
+            min-width: 400px;
+            z-index: 100;
+            pointer-events: none;
+        }
+
+        .menu-title {
+            text-align: center;
+            font-size: 24px;
+            font-weight: 900;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            border-bottom: 2px solid #fff;
+            padding-bottom: 15px;
+        }
+
+        .menu-options {
+            list-style: none;
+            margin-bottom: 30px;
+        }
+
+        .menu-option {
+            padding: 10px 0;
+            font-size: 16px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid #333;
+            transition: all 0.3s ease;
+        }
+
+        .menu-option:hover {
+            background: #fff;
+            color: #000;
+            padding-left: 10px;
+        }
+
+        /* Cat Container */
+        .cat-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .cat {
+            position: absolute;
+            width: 32px;
+            height: 32px;
+            pointer-events: none;
+            transition: all 3s ease-in-out;
+            image-rendering: pixelated;
+        }
+
+        /* Pixel Cat Canvas */
+        .cat-canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Triangle Formation */
+        .triangle-formation {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 200px;
+            height: 200px;
+        }
+
+        /* Special Effects */
+        .special-message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 32px;
+            font-weight: 900;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            color: #fff;
+            background: #000;
+            border: 4px solid #fff;
+            padding: 40px;
+            z-index: 200;
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+
+        .special-message.show {
+            opacity: 1;
+        }
+
+        /* Reset Button */
+        .reset-btn {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: #000;
+            border: 2px solid #fff;
+            color: #fff;
+            padding: 10px 20px;
+            font-family: 'Orbitron', monospace;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 300;
+        }
+
+        .reset-btn:hover {
+            background: #fff;
+            color: #000;
+        }
+
+        /* Typewriter Effect */
+        .typewriter {
+            overflow: hidden;
+            border-right: 2px solid #fff;
+            white-space: nowrap;
+            animation: typing 3s steps(40, end), blink-caret 0.75s step-end infinite;
+        }
+
+        @keyframes typing {
+            from { width: 0; }
+            to { width: 100%; }
+        }
+
+        @keyframes blink-caret {
+            from, to { border-color: transparent; }
+            50% { border-color: #fff; }
+        }
+
+        /* Blinking Animation */
+        @keyframes blink {
+            0%, 90%, 100% { opacity: 1; }
+            95% { opacity: 0; }
+        }
+
+        .cat.blinking {
+            animation: blink 3s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <div class="status-item">
+                <span>CATS SPAWNED:</span>
+                <span class="status-value" id="cats-count">0</span>
+            </div>
+            <div class="status-item">
+                <span>STATUS:</span>
+                <span class="status-value" id="status">READY</span>
+            </div>
+            <div class="status-item">
+                <span>TRIANGLE:</span>
+                <span class="status-value" id="triangle-status">INACTIVE</span>
+            </div>
+        </div>
+
+        <!-- Menu Interface -->
+        <div class="menu-interface">
+            <div class="menu-title typewriter">CAT PROTOCOL v1.0</div>
+            <ul class="menu-options">
+                <li class="menu-option">INVENTORY</li>
+                <li class="menu-option">STATUS</li>
+                <li class="menu-option">SAVE/LOAD</li>
+                <li class="menu-option">OPTIONS</li>
+                <li class="menu-option">EXIT</li>
+            </ul>
+            <div style="text-align: center; font-size: 12px; color: #666;">
+                CLICK ANYWHERE TO SPAWN CATS
+            </div>
+        </div>
+
+        <!-- Cat Container -->
+        <div class="cat-container" id="cat-container"></div>
+
+        <!-- Special Message -->
+        <div class="special-message" id="special-message">
+            TRIANGLE PROTOCOL<br>ACTIVATED
+        </div>
+
+        <!-- Reset Button -->
+        <button class="reset-btn" onclick="resetCats()">RESET</button>
+    </div>
+
+    <script>
+        class CatSpawner {
+            constructor() {
+                this.cats = [];
+                this.catCount = 0;
+                this.triangleThreshold = 6;
+                this.isTriangleForming = false;
+                this.meowSounds = [];
+                this.container = document.getElementById('cat-container');
+                this.catsCountElement = document.getElementById('cats-count');
+                this.statusElement = document.getElementById('status');
+                this.triangleStatusElement = document.getElementById('triangle-status');
+                this.specialMessageElement = document.getElementById('special-message');
+                
+                this.initAudio();
+                this.bindEvents();
+            }
+
+            initAudio() {
+                // Create multiple meow sound variations using Web Audio API
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                
+                for (let i = 0; i < 5; i++) {
+                    this.meowSounds.push(() => {
+                        const oscillator = audioContext.createOscillator();
+                        const gainNode = audioContext.createGain();
+                        
+                        oscillator.connect(gainNode);
+                        gainNode.connect(audioContext.destination);
+                        
+                        oscillator.frequency.setValueAtTime(200 + Math.random() * 300, audioContext.currentTime);
+                        oscillator.frequency.exponentialRampToValueAtTime(100, audioContext.currentTime + 0.3);
+                        
+                        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                        
+                        oscillator.start(audioContext.currentTime);
+                        oscillator.stop(audioContext.currentTime + 0.3);
+                    });
+                }
+            }
+
+            bindEvents() {
+                document.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('reset-btn')) return;
+                    this.spawnCat(e.clientX, e.clientY);
+                });
+            }
+
+            spawnCat(x, y) {
+                const cat = this.createCatElement(x, y);
+                this.container.appendChild(cat);
+                this.cats.push(cat);
+                this.catCount++;
+                
+                this.updateUI();
+                this.playMeow();
+                this.checkTriangleFormation();
+                
+                // Random blinking
+                if (Math.random() < 0.3) {
+                    setTimeout(() => {
+                        cat.classList.add('blinking');
+                        setTimeout(() => cat.classList.remove('blinking'), 3000);
+                    }, Math.random() * 2000);
+                }
+            }
+
+            createCatElement(x, y) {
+                const cat = document.createElement('div');
+                cat.className = 'cat';
+                cat.style.left = (x - 16) + 'px';
+                cat.style.top = (y - 16) + 'px';
+                
+                const canvas = document.createElement('canvas');
+                canvas.width = 32;
+                canvas.height = 32;
+                canvas.className = 'cat-canvas';
+                
+                this.drawPixelCat(canvas);
+                cat.appendChild(canvas);
+                
+                return cat;
+            }
+
+            drawPixelCat(canvas) {
+                const ctx = canvas.getContext('2d');
+                ctx.imageSmoothingEnabled = false;
+                
+                // Random variations
+                const earVariation = Math.random() > 0.5;
+                const tailVariation = Math.random() > 0.5;
+                const expressionVariation = Math.random() > 0.5;
+                
+                // Clear canvas
+                ctx.fillStyle = '#000';
+                ctx.fillRect(0, 0, 32, 32);
+                
+                // Cat body (white)
+                ctx.fillStyle = '#fff';
+                
+                // Head
+                ctx.fillRect(8, 8, 16, 12);
+                
+                // Ears
+                if (earVariation) {
+                    ctx.fillRect(6, 6, 4, 6);
+                    ctx.fillRect(22, 6, 4, 6);
+                } else {
+                    ctx.fillRect(8, 4, 4, 8);
+                    ctx.fillRect(20, 4, 4, 8);
+                }
+                
+                // Body
+                ctx.fillRect(10, 20, 12, 8);
+                
+                // Tail
+                if (tailVariation) {
+                    ctx.fillRect(20, 22, 6, 2);
+                    ctx.fillRect(24, 20, 2, 2);
+                } else {
+                    ctx.fillRect(18, 24, 8, 2);
+                }
+                
+                // Eyes
+                ctx.fillStyle = '#000';
+                if (expressionVariation) {
+                    ctx.fillRect(10, 12, 2, 2);
+                    ctx.fillRect(20, 12, 2, 2);
+                } else {
+                    ctx.fillRect(11, 11, 2, 3);
+                    ctx.fillRect(19, 11, 2, 3);
+                }
+                
+                // Nose
+                ctx.fillRect(15, 15, 2, 1);
+                
+                // Mouth
+                ctx.fillRect(14, 17, 4, 1);
+            }
+
+            playMeow() {
+                const randomMeow = this.meowSounds[Math.floor(Math.random() * this.meowSounds.length)];
+                randomMeow();
+            }
+
+            updateUI() {
+                this.catsCountElement.textContent = this.catCount;
+                this.statusElement.textContent = this.catCount >= this.triangleThreshold ? 'TRIANGLE READY' : 'SPAWNING';
+            }
+
+            checkTriangleFormation() {
+                if (this.catCount >= this.triangleThreshold && !this.isTriangleForming) {
+                    this.isTriangleForming = true;
+                    this.triangleStatusElement.textContent = 'ACTIVE';
+                    this.statusElement.textContent = 'FORMING TRIANGLE';
+                    
+                    setTimeout(() => {
+                        this.formTriangle();
+                    }, 1000);
+                }
+            }
+
+            formTriangle() {
+                const centerX = window.innerWidth / 2;
+                const centerY = window.innerHeight / 2;
+                const radius = 100;
+                
+                this.cats.forEach((cat, index) => {
+                    const angle = (index / this.cats.length) * 2 * Math.PI;
+                    const x = centerX + Math.cos(angle) * radius;
+                    const y = centerY + Math.sin(angle) * radius;
+                    
+                    cat.style.left = (x - 16) + 'px';
+                    cat.style.top = (y - 16) + 'px';
+                });
+                
+                setTimeout(() => {
+                    this.showSpecialMessage();
+                }, 3000);
+            }
+
+            showSpecialMessage() {
+                this.specialMessageElement.classList.add('show');
+                this.statusElement.textContent = 'TRIANGLE COMPLETE';
+                
+                // Play special sound
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.setValueAtTime(400, audioContext.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(800, audioContext.currentTime + 0.5);
+                
+                gainNode.gain.setValueAtTime(0.5, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.5);
+                
+                setTimeout(() => {
+                    this.specialMessageElement.classList.remove('show');
+                }, 3000);
+            }
+
+            reset() {
+                this.cats.forEach(cat => cat.remove());
+                this.cats = [];
+                this.catCount = 0;
+                this.isTriangleForming = false;
+                this.triangleStatusElement.textContent = 'INACTIVE';
+                this.statusElement.textContent = 'READY';
+                this.catsCountElement.textContent = '0';
+                this.specialMessageElement.classList.remove('show');
+            }
+        }
+
+        // Initialize the cat spawner
+        const catSpawner = new CatSpawner();
+
+        // Global reset function
+        function resetCats() {
+            catSpawner.reset();
+        }
+
+        // Add some ambient sound on first click
+        let firstClick = true;
+        document.addEventListener('click', () => {
+            if (firstClick) {
+                firstClick = false;
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.setValueAtTime(150, audioContext.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(50, audioContext.currentTime + 1);
+                
+                gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 1);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 1);
+            }
+        });
+    </script>
+</body>
+</html>
