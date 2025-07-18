@@ -4,19 +4,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RESIDENT EVIL: CAT PROTOCOL</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&family=Exo+2:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary-bg: #000000;
-            --primary-text: #ffffff;
-            --border-color: #ffffff;
-            --hover-bg: #ffffff;
-            --hover-text: #000000;
-            --secondary-text: #666666;
-            --scanline-opacity: 0.1;
-            --transition-standard: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            --cat-size: 32px;
-            --triangle-radius: 100px;
+            --primary-bg: #0a0a0f;
+            --secondary-bg: #1a1a2e;
+            --tertiary-bg: #16213e;
+            --accent-bg: #0f3460;
+            --primary-text: #e9ecef;
+            --secondary-text: #adb5bd;
+            --accent-text: #00d2ff;
+            --highlight-text: #ff6b9d;
+            --border-color: #495057;
+            --accent-border: #00d2ff;
+            --glow-color: #00d2ff;
+            --warning-color: #ff6b9d;
+            --success-color: #4ecdc4;
+            --hover-bg: linear-gradient(135deg, #00d2ff 0%, #3a7bd5 100%);
+            --hover-text: #0a0a0f;
+            --scanline-opacity: 0.05;
+            --transition-standard: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            --transition-bounce: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            --cat-size: 48px;
+            --triangle-radius: 120px;
+            --shadow-glow: 0 0 20px rgba(0, 210, 255, 0.3);
+            --shadow-intense: 0 0 40px rgba(0, 210, 255, 0.6);
         }
 
         * {
@@ -26,13 +38,36 @@
         }
 
         body {
-            background: var(--primary-bg);
+            background: radial-gradient(ellipse at center, var(--secondary-bg) 0%, var(--primary-bg) 70%);
             color: var(--primary-text);
-            font-family: 'Orbitron', monospace;
+            font-family: 'Exo 2', 'Rajdhani', monospace;
             overflow: hidden;
             cursor: crosshair;
             position: relative;
             height: 100vh;
+            background-attachment: fixed;
+        }
+
+        /* Animated background grid */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 210, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 210, 255, 0.05) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: 1;
+            animation: gridPulse 4s ease-in-out infinite;
+        }
+
+        @keyframes gridPulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.6; }
         }
 
         /* Enhanced CRT Scanline Effect */
@@ -42,17 +77,17 @@
             inset: 0;
             background: linear-gradient(
                 transparent 50%,
-                rgba(0, 0, 0, var(--scanline-opacity)) 50%
+                rgba(0, 210, 255, var(--scanline-opacity)) 50%
             );
-            background-size: 100% 4px;
+            background-size: 100% 3px;
             pointer-events: none;
             z-index: 1000;
-            animation: scanline 0.1s linear infinite;
+            animation: scanline 0.08s linear infinite;
         }
 
         @keyframes scanline {
             0% { transform: translateY(0); }
-            100% { transform: translateY(4px); }
+            100% { transform: translateY(3px); }
         }
 
         /* Main Layout */
@@ -64,86 +99,196 @@
             grid-template-rows: auto 1fr;
         }
 
-        /* Status Bar */
+        /* Status Bar - RE Village Style */
         .status-bar {
-            background: var(--primary-bg);
-            border: 2px solid var(--border-color);
-            border-bottom: none;
-            padding: 1rem 1.5rem;
+            background: linear-gradient(135deg, var(--secondary-bg) 0%, var(--tertiary-bg) 100%);
+            border: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--accent-border);
+            padding: 1.25rem 2rem;
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 2rem;
-            font-size: 0.875rem;
-            font-weight: 700;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 2.5rem;
+            font-family: 'Rajdhani', monospace;
+            font-size: 0.95rem;
+            font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 0.125rem;
+            letter-spacing: 0.15rem;
+            position: relative;
+            backdrop-filter: blur(10px);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .status-bar::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent 0%, var(--accent-text) 50%, transparent 100%);
         }
 
         .status-item {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
+            gap: 1rem;
+            position: relative;
+        }
+
+        .status-item::before {
+            content: '▶';
+            color: var(--accent-text);
+            font-size: 0.7rem;
+            margin-right: 0.5rem;
+            animation: pulse 2s ease-in-out infinite;
         }
 
         .status-value {
-            color: var(--primary-text);
-            font-weight: 900;
+            color: var(--accent-text);
+            font-weight: 700;
+            font-family: 'Orbitron', monospace;
+            text-shadow: 0 0 10px var(--glow-color);
+            transition: var(--transition-standard);
         }
 
-        /* Enhanced Menu Interface */
+        .status-value.warning {
+            color: var(--warning-color);
+            text-shadow: 0 0 10px var(--warning-color);
+        }
+
+        .status-value.success {
+            color: var(--success-color);
+            text-shadow: 0 0 10px var(--success-color);
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        /* Enhanced Menu Interface - RE Village Style */
         .menu-interface {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: var(--primary-bg);
-            border: 3px solid var(--border-color);
-            padding: 2rem;
-            min-width: 400px;
+            background: linear-gradient(135deg, rgba(26, 26, 46, 0.95) 0%, rgba(22, 33, 62, 0.95) 100%);
+            border: 1px solid var(--accent-border);
+            border-radius: 8px;
+            padding: 3rem 2.5rem;
+            min-width: 480px;
             z-index: 100;
             pointer-events: none;
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(20px);
+            box-shadow: var(--shadow-intense), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            position: relative;
+        }
+
+        .menu-interface::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent 0%, var(--accent-text) 50%, transparent 100%);
+        }
+
+        .menu-interface::after {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            right: 15px;
+            bottom: 15px;
+            border: 1px solid rgba(0, 210, 255, 0.2);
+            border-radius: 4px;
+            pointer-events: none;
         }
 
         .menu-title {
             text-align: center;
-            font-size: 1.5rem;
-            font-weight: 900;
-            margin-bottom: 2rem;
+            font-size: 2rem;
+            font-weight: 300;
+            font-family: 'Exo 2', monospace;
+            margin-bottom: 2.5rem;
             text-transform: uppercase;
-            letter-spacing: 0.1875rem;
-            border-bottom: 2px solid var(--border-color);
-            padding-bottom: 1rem;
+            letter-spacing: 0.3rem;
+            color: var(--accent-text);
+            text-shadow: 0 0 20px var(--glow-color);
+            position: relative;
+        }
+
+        .menu-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent 0%, var(--accent-text) 50%, transparent 100%);
         }
 
         .menu-options {
             list-style: none;
-            margin-bottom: 2rem;
+            margin-bottom: 2.5rem;
         }
 
         .menu-option {
-            padding: 0.75rem 0;
-            font-size: 1rem;
-            font-weight: 700;
+            padding: 1rem 1.5rem;
+            font-size: 1.1rem;
+            font-weight: 500;
+            font-family: 'Rajdhani', monospace;
             text-transform: uppercase;
-            letter-spacing: 0.0625rem;
-            border-bottom: 1px solid #333;
-            transition: var(--transition-standard);
+            letter-spacing: 0.1rem;
+            border: 1px solid transparent;
+            border-radius: 4px;
+            margin-bottom: 0.5rem;
+            transition: var(--transition-bounce);
             cursor: pointer;
+            position: relative;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .menu-option::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: transparent;
+            transition: var(--transition-standard);
         }
 
         .menu-option:hover {
-            background: var(--hover-bg);
-            color: var(--hover-text);
-            padding-left: 0.75rem;
-            transform: translateX(5px);
+            background: linear-gradient(135deg, rgba(0, 210, 255, 0.1) 0%, rgba(58, 123, 213, 0.1) 100%);
+            border-color: var(--accent-border);
+            color: var(--accent-text);
+            transform: translateX(10px) scale(1.02);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .menu-option:hover::before {
+            background: var(--accent-text);
+            box-shadow: 0 0 10px var(--glow-color);
         }
 
         .menu-instruction {
             text-align: center;
-            font-size: 0.75rem;
+            font-size: 0.9rem;
             color: var(--secondary-text);
-            font-weight: 400;
+            font-weight: 300;
+            font-family: 'Exo 2', monospace;
+            letter-spacing: 0.05rem;
+            opacity: 0.8;
+            animation: breathe 3s ease-in-out infinite;
+        }
+
+        @keyframes breathe {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
         }
 
         /* Cat Container */
@@ -161,33 +306,101 @@
             transition: all 3s cubic-bezier(0.4, 0, 0.2, 1);
             image-rendering: pixelated;
             will-change: transform;
+            filter: drop-shadow(0 0 8px var(--glow-color));
         }
 
         .cat-canvas {
             width: 100%;
             height: 100%;
+            border-radius: 2px;
         }
 
-        /* Enhanced Special Effects */
+        .cat.spawning {
+            animation: catSpawn 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .cat.moving {
+            animation: catFloat 2s ease-in-out infinite;
+        }
+
+        @keyframes catSpawn {
+            0% {
+                transform: scale(0) rotate(180deg);
+                opacity: 0;
+                filter: drop-shadow(0 0 20px var(--accent-text)) hue-rotate(90deg);
+            }
+            50% {
+                transform: scale(1.2) rotate(90deg);
+                opacity: 0.8;
+            }
+            100% {
+                transform: scale(1) rotate(0deg);
+                opacity: 1;
+                filter: drop-shadow(0 0 8px var(--glow-color));
+            }
+        }
+
+        @keyframes catFloat {
+            0%, 100% {
+                transform: translateY(0px);
+                filter: drop-shadow(0 0 8px var(--glow-color));
+            }
+            50% {
+                transform: translateY(-3px);
+                filter: drop-shadow(0 0 12px var(--accent-text));
+            }
+        }
+
+        /* Enhanced Special Effects - RE Village Style */
         .special-message {
             position: fixed;
             top: 50%;
             left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 2rem;
-            font-weight: 900;
+            transform: translate(-50%, -50%) scale(0.8);
+            font-size: 2.5rem;
+            font-weight: 200;
+            font-family: 'Exo 2', monospace;
             text-align: center;
             text-transform: uppercase;
-            letter-spacing: 0.25rem;
-            color: var(--primary-text);
-            background: var(--primary-bg);
-            border: 4px solid var(--border-color);
-            padding: 2.5rem;
+            letter-spacing: 0.4rem;
+            color: var(--highlight-text);
+            background: linear-gradient(135deg, rgba(10, 10, 15, 0.98) 0%, rgba(26, 26, 46, 0.98) 100%);
+            border: 2px solid var(--warning-color);
+            border-radius: 12px;
+            padding: 3rem 4rem;
             z-index: 200;
             opacity: 0;
-            transform: translate(-50%, -50%) scale(0.8);
-            transition: all 1s cubic-bezier(0.4, 0, 0.2, 1);
-            backdrop-filter: blur(10px);
+            transition: all 1.2s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            backdrop-filter: blur(25px);
+            box-shadow: 
+                0 0 60px rgba(255, 107, 157, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            position: relative;
+        }
+
+        .special-message::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, var(--warning-color), var(--accent-text), var(--warning-color));
+            border-radius: 12px;
+            z-index: -1;
+            animation: borderGlow 2s ease-in-out infinite;
+        }
+
+        .special-message::after {
+            content: '◆ ◆ ◆';
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: var(--warning-color);
+            font-size: 1.2rem;
+            letter-spacing: 1rem;
+            animation: sparkle 1.5s ease-in-out infinite;
         }
 
         .special-message.show {
@@ -195,35 +408,80 @@
             transform: translate(-50%, -50%) scale(1);
         }
 
-        /* Enhanced Reset Button */
+        @keyframes borderGlow {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        @keyframes sparkle {
+            0%, 100% { opacity: 0.4; transform: translateX(-50%) rotate(0deg); }
+            50% { opacity: 1; transform: translateX(-50%) rotate(180deg); }
+        }
+
+        /* Enhanced Reset Button - RE Village Style */
         .reset-btn {
             position: fixed;
-            bottom: 1.5rem;
-            right: 1.5rem;
-            background: var(--primary-bg);
-            border: 2px solid var(--border-color);
-            color: var(--primary-text);
-            padding: 0.75rem 1.5rem;
-            font-family: 'Orbitron', monospace;
-            font-size: 0.75rem;
-            font-weight: 700;
+            bottom: 2rem;
+            right: 2rem;
+            background: linear-gradient(135deg, var(--secondary-bg) 0%, var(--tertiary-bg) 100%);
+            border: 1px solid var(--accent-border);
+            color: var(--accent-text);
+            padding: 1rem 2rem;
+            font-family: 'Rajdhani', monospace;
+            font-size: 0.9rem;
+            font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 0.0625rem;
+            letter-spacing: 0.1rem;
             cursor: pointer;
-            transition: var(--transition-standard);
+            transition: var(--transition-bounce);
             z-index: 300;
-            border-radius: 0;
+            border-radius: 6px;
+            backdrop-filter: blur(10px);
+            box-shadow: var(--shadow-glow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .reset-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .reset-btn::after {
+            content: '⟲';
+            position: absolute;
+            left: 0.8rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.1rem;
+            transition: var(--transition-standard);
         }
 
         .reset-btn:hover {
             background: var(--hover-bg);
             color: var(--hover-text);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(255, 255, 255, 0.2);
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: var(--shadow-intense);
+            border-color: var(--accent-text);
+        }
+
+        .reset-btn:hover::before {
+            left: 100%;
+        }
+
+        .reset-btn:hover::after {
+            transform: translateY(-50%) rotate(180deg);
+            color: var(--hover-text);
         }
 
         .reset-btn:active {
-            transform: translateY(0);
+            transform: translateY(-1px) scale(1.02);
         }
 
         /* Enhanced Typewriter Effect */
@@ -278,16 +536,16 @@
         <!-- Status Bar -->
         <header class="status-bar">
             <div class="status-item">
-                <span>CATS SPAWNED:</span>
+                <span>CYBER UNITS:</span>
                 <span class="status-value" data-status="cats-count">0</span>
             </div>
             <div class="status-item">
-                <span>STATUS:</span>
-                <span class="status-value" data-status="status">READY</span>
+                <span>NEURAL STATE:</span>
+                <span class="status-value" data-status="status">STANDBY</span>
             </div>
             <div class="status-item">
-                <span>TRIANGLE:</span>
-                <span class="status-value" data-status="triangle-status">INACTIVE</span>
+                <span>FORMATION:</span>
+                <span class="status-value" data-status="triangle-status">OFFLINE</span>
             </div>
         </header>
 
@@ -295,16 +553,16 @@
         <main class="content-area">
             <!-- Menu Interface -->
             <div class="menu-interface">
-                <h1 class="menu-title typewriter">CAT PROTOCOL v2.0</h1>
+                <h1 class="menu-title typewriter">CYBER CAT PROTOCOL v2.1</h1>
                 <ul class="menu-options">
-                    <li class="menu-option">INVENTORY</li>
-                    <li class="menu-option">STATUS</li>
-                    <li class="menu-option">SAVE/LOAD</li>
-                    <li class="menu-option">OPTIONS</li>
-                    <li class="menu-option">EXIT</li>
+                    <li class="menu-option">NEURAL INVENTORY</li>
+                    <li class="menu-option">SYSTEM STATUS</li>
+                    <li class="menu-option">DATA SYNC</li>
+                    <li class="menu-option">CONFIG MATRIX</li>
+                    <li class="menu-option">DISCONNECT</li>
                 </ul>
                 <div class="menu-instruction">
-                    CLICK ANYWHERE TO SPAWN CATS
+                    CLICK TO INITIALIZE CYBER CATS
                 </div>
             </div>
 
@@ -313,7 +571,7 @@
 
             <!-- Special Message -->
             <div class="special-message" data-message="special">
-                TRIANGLE PROTOCOL<br>ACTIVATED
+                NEURAL LINK<br>ESTABLISHED<br><span style="font-size: 0.7em; opacity: 0.8;">CYBER TRIANGLE FORMATION COMPLETE</span>
             </div>
         </main>
 
@@ -479,66 +737,151 @@
             }
         }
 
-        // Cat Renderer
+        // Futuristic Cat Renderer
         class CatRenderer {
             static drawPixelCat(canvas) {
                 const ctx = canvas.getContext('2d');
                 ctx.imageSmoothingEnabled = false;
                 
                 const variations = {
-                    ear: Math.random() > 0.5,
-                    tail: Math.random() > 0.5,
-                    expression: Math.random() > 0.5
+                    breed: Math.floor(Math.random() * 4), // 4 different cat breeds
+                    cyberEyes: Math.random() > 0.3, // 70% chance of cyber eyes
+                    armor: Math.random() > 0.6, // 40% chance of armor
+                    antenna: Math.random() > 0.7, // 30% chance of antenna
+                    hologram: Math.random() > 0.8 // 20% chance of holographic effect
                 };
                 
-                // Clear canvas
-                ctx.fillStyle = '#000';
+                // Clear canvas with transparent black
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
                 ctx.fillRect(0, 0, CONFIG.CAT_SIZE, CONFIG.CAT_SIZE);
                 
-                // Cat body (white)
-                ctx.fillStyle = '#fff';
+                // Base cat colors (futuristic palette)
+                const catColors = [
+                    '#e9ecef', // White
+                    '#adb5bd', // Silver
+                    '#495057', // Dark gray
+                    '#00d2ff'  // Cyber blue
+                ];
                 
-                // Head
-                ctx.fillRect(8, 8, 16, 12);
+                const baseColor = catColors[variations.breed];
+                ctx.fillStyle = baseColor;
                 
-                // Ears
-                if (variations.ear) {
-                    ctx.fillRect(6, 6, 4, 6);
-                    ctx.fillRect(22, 6, 4, 6);
-                } else {
-                    ctx.fillRect(8, 4, 4, 8);
-                    ctx.fillRect(20, 4, 4, 8);
+                // Main body structure based on breed
+                this.drawCatBody(ctx, variations, baseColor);
+                this.drawCyberEnhancements(ctx, variations);
+                this.drawHolographicEffect(ctx, variations);
+            }
+            
+            static drawCatBody(ctx, variations, baseColor) {
+                ctx.fillStyle = baseColor;
+                
+                // Head (larger and more detailed)
+                ctx.fillRect(6, 6, 20, 16);
+                
+                // Ears with different shapes
+                switch(variations.breed) {
+                    case 0: // Pointy ears
+                        ctx.fillRect(4, 4, 6, 8);
+                        ctx.fillRect(22, 4, 6, 8);
+                        break;
+                    case 1: // Round ears
+                        ctx.fillRect(6, 2, 4, 10);
+                        ctx.fillRect(22, 2, 4, 10);
+                        break;
+                    case 2: // Large ears
+                        ctx.fillRect(2, 2, 8, 12);
+                        ctx.fillRect(22, 2, 8, 12);
+                        break;
+                    case 3: // Cyber ears with antennas
+                        ctx.fillRect(6, 4, 4, 8);
+                        ctx.fillRect(22, 4, 4, 8);
+                        if (variations.antenna) {
+                            ctx.fillStyle = '#00d2ff';
+                            ctx.fillRect(7, 2, 2, 4);
+                            ctx.fillRect(23, 2, 2, 4);
+                            ctx.fillRect(6, 1, 4, 1);
+                            ctx.fillRect(22, 1, 4, 1);
+                            ctx.fillStyle = baseColor;
+                        }
+                        break;
                 }
                 
                 // Body
-                ctx.fillRect(10, 20, 12, 8);
+                ctx.fillRect(8, 22, 16, 12);
                 
-                // Tail
-                if (variations.tail) {
-                    ctx.fillRect(20, 22, 6, 2);
-                    ctx.fillRect(24, 20, 2, 2);
+                // Legs (robotic style)
+                ctx.fillRect(10, 34, 3, 8);
+                ctx.fillRect(13, 34, 3, 8);
+                ctx.fillRect(18, 34, 3, 8);
+                ctx.fillRect(21, 34, 3, 8);
+                
+                // Tail (curved and futuristic)
+                ctx.fillRect(24, 24, 4, 2);
+                ctx.fillRect(26, 22, 2, 2);
+                ctx.fillRect(28, 20, 2, 2);
+                ctx.fillRect(30, 18, 2, 4);
+            }
+            
+            static drawCyberEnhancements(ctx, variations) {
+                // Cyber eyes
+                if (variations.cyberEyes) {
+                    ctx.fillStyle = '#00d2ff';
+                    ctx.fillRect(10, 12, 3, 3);
+                    ctx.fillRect(19, 12, 3, 3);
+                    
+                    // Eye glow effect
+                    ctx.fillStyle = '#ff6b9d';
+                    ctx.fillRect(11, 13, 1, 1);
+                    ctx.fillRect(20, 13, 1, 1);
                 } else {
-                    ctx.fillRect(18, 24, 8, 2);
+                    // Normal eyes
+                    ctx.fillStyle = '#000';
+                    ctx.fillRect(11, 13, 2, 2);
+                    ctx.fillRect(20, 13, 2, 2);
                 }
                 
-                // Eyes
-                ctx.fillStyle = '#000';
-                if (variations.expression) {
-                    ctx.fillRect(10, 12, 2, 2);
-                    ctx.fillRect(20, 12, 2, 2);
-                } else {
-                    ctx.fillRect(11, 11, 2, 3);
-                    ctx.fillRect(19, 11, 2, 3);
+                // Armor plating
+                if (variations.armor) {
+                    ctx.fillStyle = '#495057';
+                    ctx.fillRect(8, 20, 16, 2); // Chest armor
+                    ctx.fillRect(12, 24, 8, 2); // Belt
+                    
+                    // Armor details
+                    ctx.fillStyle = '#00d2ff';
+                    ctx.fillRect(15, 21, 2, 1);
+                    ctx.fillRect(14, 25, 4, 1);
                 }
                 
-                // Nose and mouth
-                ctx.fillRect(15, 15, 2, 1);
-                ctx.fillRect(14, 17, 4, 1);
+                // Nose and mouth (cyber style)
+                ctx.fillStyle = '#ff6b9d';
+                ctx.fillRect(15, 17, 2, 1);
+                ctx.fillStyle = '#adb5bd';
+                ctx.fillRect(14, 19, 4, 1);
+                
+                // Data ports
+                ctx.fillStyle = '#00d2ff';
+                ctx.fillRect(5, 14, 1, 1);
+                ctx.fillRect(26, 14, 1, 1);
+            }
+            
+            static drawHolographicEffect(ctx, variations) {
+                if (!variations.hologram) return;
+                
+                // Holographic shimmer lines
+                ctx.fillStyle = 'rgba(0, 210, 255, 0.3)';
+                for (let i = 0; i < CONFIG.CAT_SIZE; i += 4) {
+                    ctx.fillRect(0, i, CONFIG.CAT_SIZE, 1);
+                }
+                
+                // Glitch effect
+                ctx.fillStyle = 'rgba(255, 107, 157, 0.2)';
+                ctx.fillRect(Math.random() * CONFIG.CAT_SIZE, Math.random() * CONFIG.CAT_SIZE, 2, 1);
+                ctx.fillRect(Math.random() * CONFIG.CAT_SIZE, Math.random() * CONFIG.CAT_SIZE, 1, 2);
             }
 
             static createElement(x, y) {
                 const cat = document.createElement('div');
-                cat.className = 'cat';
+                cat.className = 'cat spawning';
                 cat.style.left = `${x - CONFIG.CAT_SIZE / 2}px`;
                 cat.style.top = `${y - CONFIG.CAT_SIZE / 2}px`;
                 
@@ -549,6 +892,14 @@
                 
                 this.drawPixelCat(canvas);
                 cat.appendChild(canvas);
+                
+                // Remove spawning animation and add floating after spawn
+                setTimeout(() => {
+                    cat.classList.remove('spawning');
+                    if (Math.random() > 0.7) { // 30% chance to float
+                        cat.classList.add('moving');
+                    }
+                }, 800);
                 
                 return cat;
             }
@@ -573,18 +924,34 @@
 
             updateStatus(catCount, isTriangleReady, triangleActive) {
                 this.elements.catsCount.textContent = catCount;
-                this.elements.status.textContent = this.getStatusText(catCount, isTriangleReady);
-                this.elements.triangleStatus.textContent = triangleActive ? 'ACTIVE' : 'INACTIVE';
+                this.elements.catsCount.className = this.getStatusClass(catCount);
+                
+                const statusText = this.getStatusText(catCount, isTriangleReady);
+                this.elements.status.textContent = statusText;
+                this.elements.status.className = this.getStatusClass(catCount, isTriangleReady);
+                
+                const triangleText = triangleActive ? 'ONLINE' : 'OFFLINE';
+                this.elements.triangleStatus.textContent = triangleText;
+                this.elements.triangleStatus.className = triangleActive ? 'status-value success' : 'status-value';
             }
 
             getStatusText(catCount, isTriangleReady) {
-                if (isTriangleReady) return 'TRIANGLE READY';
-                return catCount > 0 ? 'SPAWNING' : 'READY';
+                if (isTriangleReady) return 'FORMATION READY';
+                if (catCount > 0) return 'DEPLOYING';
+                return 'STANDBY';
+            }
+
+            getStatusClass(catCount, isTriangleReady = false) {
+                if (isTriangleReady) return 'status-value warning';
+                if (catCount >= CONFIG.TRIANGLE_THRESHOLD * 0.7) return 'status-value warning';
+                if (catCount > 0) return 'status-value';
+                return 'status-value';
             }
 
             showSpecialMessage() {
                 this.elements.specialMessage.classList.add('show');
-                this.elements.status.textContent = 'TRIANGLE COMPLETE';
+                this.elements.status.textContent = 'NEURAL LINK ACTIVE';
+                this.elements.status.className = 'status-value success';
                 
                 setTimeout(() => {
                     this.elements.specialMessage.classList.remove('show');
