@@ -166,129 +166,36 @@
             50% { opacity: 1; }
         }
 
-        /* Enhanced Menu Interface - RE Village Style */
-        .menu-interface {
-            position: absolute;
-            top: 50%;
+        /* Subtle Instruction Overlay */
+        .instruction-overlay {
+            position: fixed;
+            bottom: 50%;
             left: 50%;
-            transform: translate(-50%, -50%);
-            background: linear-gradient(135deg, rgba(26, 26, 46, 0.95) 0%, rgba(22, 33, 62, 0.95) 100%);
-            border: 1px solid var(--accent-border);
-            border-radius: 8px;
-            padding: 3rem 2.5rem;
-            min-width: 480px;
-            z-index: 100;
-            pointer-events: none;
-            backdrop-filter: blur(20px);
-            box-shadow: var(--shadow-intense), inset 0 1px 0 rgba(255, 255, 255, 0.1);
-            position: relative;
-        }
-
-        .menu-interface::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: linear-gradient(90deg, transparent 0%, var(--accent-text) 50%, transparent 100%);
-        }
-
-        .menu-interface::after {
-            content: '';
-            position: absolute;
-            top: 15px;
-            left: 15px;
-            right: 15px;
-            bottom: 15px;
-            border: 1px solid rgba(0, 210, 255, 0.2);
-            border-radius: 4px;
-            pointer-events: none;
-        }
-
-        .menu-title {
-            text-align: center;
-            font-size: 2rem;
-            font-weight: 300;
-            font-family: 'Exo 2', monospace;
-            margin-bottom: 2.5rem;
-            text-transform: uppercase;
-            letter-spacing: 0.3rem;
-            color: var(--accent-text);
-            text-shadow: 0 0 20px var(--glow-color);
-            position: relative;
-        }
-
-        .menu-title::after {
-            content: '';
-            position: absolute;
-            bottom: -10px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 60px;
-            height: 2px;
-            background: linear-gradient(90deg, transparent 0%, var(--accent-text) 50%, transparent 100%);
-        }
-
-        .menu-options {
-            list-style: none;
-            margin-bottom: 2.5rem;
-        }
-
-        .menu-option {
-            padding: 1rem 1.5rem;
-            font-size: 1.1rem;
-            font-weight: 500;
-            font-family: 'Rajdhani', monospace;
-            text-transform: uppercase;
-            letter-spacing: 0.1rem;
-            border: 1px solid transparent;
-            border-radius: 4px;
-            margin-bottom: 0.5rem;
-            transition: var(--transition-bounce);
-            cursor: pointer;
-            position: relative;
-            background: rgba(0, 0, 0, 0.2);
-        }
-
-        .menu-option::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            width: 3px;
-            background: transparent;
-            transition: var(--transition-standard);
-        }
-
-        .menu-option:hover {
-            background: linear-gradient(135deg, rgba(0, 210, 255, 0.1) 0%, rgba(58, 123, 213, 0.1) 100%);
-            border-color: var(--accent-border);
-            color: var(--accent-text);
-            transform: translateX(10px) scale(1.02);
-            box-shadow: var(--shadow-glow);
-        }
-
-        .menu-option:hover::before {
-            background: var(--accent-text);
-            box-shadow: 0 0 10px var(--glow-color);
-        }
-
-        .menu-instruction {
-            text-align: center;
-            font-size: 0.9rem;
+            transform: translate(-50%, 50%);
             color: var(--secondary-text);
-            font-weight: 300;
             font-family: 'Exo 2', monospace;
-            letter-spacing: 0.05rem;
-            opacity: 0.8;
-            animation: breathe 3s ease-in-out infinite;
+            font-size: 1.1rem;
+            font-weight: 300;
+            text-align: center;
+            letter-spacing: 0.1rem;
+            opacity: 0.7;
+            z-index: 50;
+            pointer-events: none;
+            animation: breathe 4s ease-in-out infinite;
+            text-shadow: 0 0 10px rgba(0, 210, 255, 0.3);
+        }
+
+        .instruction-overlay.fade-out {
+            animation: fadeOut 2s ease-out forwards;
         }
 
         @keyframes breathe {
-            0%, 100% { opacity: 0.6; }
-            50% { opacity: 1; }
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 0.9; }
+        }
+
+        @keyframes fadeOut {
+            to { opacity: 0; }
         }
 
         /* Cat Container */
@@ -484,23 +391,7 @@
             transform: translateY(-1px) scale(1.02);
         }
 
-        /* Enhanced Typewriter Effect */
-        .typewriter {
-            overflow: hidden;
-            border-right: 2px solid var(--border-color);
-            white-space: nowrap;
-            animation: typing 3s steps(40, end), blink-caret 0.75s step-end infinite;
-        }
 
-        @keyframes typing {
-            from { width: 0; }
-            to { width: 100%; }
-        }
-
-        @keyframes blink-caret {
-            from, to { border-color: transparent; }
-            50% { border-color: var(--border-color); }
-        }
 
         /* Enhanced Blinking Animation */
         @keyframes blink {
@@ -551,19 +442,9 @@
 
         <!-- Main Content Area -->
         <main class="content-area">
-            <!-- Menu Interface -->
-            <div class="menu-interface">
-                <h1 class="menu-title typewriter">CYBER CAT PROTOCOL v2.1</h1>
-                <ul class="menu-options">
-                    <li class="menu-option">NEURAL INVENTORY</li>
-                    <li class="menu-option">SYSTEM STATUS</li>
-                    <li class="menu-option">DATA SYNC</li>
-                    <li class="menu-option">CONFIG MATRIX</li>
-                    <li class="menu-option">DISCONNECT</li>
-                </ul>
-                <div class="menu-instruction">
-                    CLICK TO INITIALIZE CYBER CATS
-                </div>
+            <!-- Subtle Instruction -->
+            <div class="instruction-overlay" data-instruction="main">
+                CLICK TO SPAWN CYBER CATS
             </div>
 
             <!-- Cat Playground -->
@@ -918,7 +799,8 @@
                     triangleStatus: document.querySelector('[data-status="triangle-status"]'),
                     specialMessage: document.querySelector('[data-message="special"]'),
                     playground: document.querySelector('[data-playground="cats"]'),
-                    resetButton: document.querySelector('[data-action="reset"]')
+                    resetButton: document.querySelector('[data-action="reset"]'),
+                    instruction: document.querySelector('[data-instruction="main"]')
                 };
             }
 
@@ -946,6 +828,17 @@
                 if (catCount >= CONFIG.TRIANGLE_THRESHOLD * 0.7) return 'status-value warning';
                 if (catCount > 0) return 'status-value';
                 return 'status-value';
+            }
+
+            hideInstruction() {
+                if (this.elements.instruction) {
+                    this.elements.instruction.classList.add('fade-out');
+                    setTimeout(() => {
+                        if (this.elements.instruction) {
+                            this.elements.instruction.style.display = 'none';
+                        }
+                    }, 2000);
+                }
             }
 
             showSpecialMessage() {
@@ -992,6 +885,11 @@
                 const cat = CatRenderer.createElement(x, y);
                 this.uiManager.elements.playground.appendChild(cat);
                 this.cats.add(cat);
+                
+                // Hide instruction after first cat
+                if (this.cats.size === 1) {
+                    this.uiManager.hideInstruction();
+                }
                 
                 this.updateUI();
                 this.audioSystem.playMeow();
@@ -1050,6 +948,12 @@
                 this.isTriangleForming = false;
                 this.updateUI();
                 this.uiManager.elements.specialMessage.classList.remove('show');
+                
+                // Show instruction again
+                if (this.uiManager.elements.instruction) {
+                    this.uiManager.elements.instruction.style.display = 'block';
+                    this.uiManager.elements.instruction.classList.remove('fade-out');
+                }
             }
         }
 
