@@ -324,18 +324,102 @@
     <script>
         'use strict';
 
-        // Configuration Constants
+        // Environment Variables Injection (populated by Vercel API)
+        window.ENV = {
+            // This will be populated by the /api/config endpoint
+            // or can be set manually for local development
+        };
+
+        // Load configuration from Vercel API
+        async function loadEnvironmentConfig() {
+            try {
+                const response = await fetch('/api/config');
+                if (response.ok) {
+                    const script = document.createElement('script');
+                    script.text = await response.text();
+                    document.head.appendChild(script);
+                }
+            } catch (error) {
+                console.warn('Could not load environment config from API:', error);
+                // Continue with default configuration
+            }
+        }
+
+        // Theme Application Function
+        function applyTheme(theme) {
+            const root = document.documentElement;
+            root.style.setProperty('--primary-bg', theme.PRIMARY_BG);
+            root.style.setProperty('--primary-text', theme.PRIMARY_TEXT);
+            root.style.setProperty('--border-color', theme.BORDER_COLOR);
+            root.style.setProperty('--hover-bg', theme.BORDER_COLOR);
+            root.style.setProperty('--hover-text', theme.PRIMARY_BG);
+            root.style.setProperty('--scanline-opacity', theme.SCANLINE_OPACITY);
+        }
+
+        // Analytics Integration
+        function initAnalytics() {
+            if (!CONFIG.FEATURES.ENABLE_ANALYTICS) return;
+            
+            // Google Analytics 4
+            if (window.ENV?.NEXT_PUBLIC_GA_ID) {
+                const script = document.createElement('script');
+                script.async = true;
+                script.src = `https://www.googletagmanager.com/gtag/js?id=${window.ENV.NEXT_PUBLIC_GA_ID}`;
+                document.head.appendChild(script);
+                
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', window.ENV.NEXT_PUBLIC_GA_ID);
+                window.gtag = gtag;
+            }
+            
+            // Plausible Analytics
+            if (window.ENV?.NEXT_PUBLIC_PLAUSIBLE_DOMAIN) {
+                const script = document.createElement('script');
+                script.defer = true;
+                script.setAttribute('data-domain', window.ENV.NEXT_PUBLIC_PLAUSIBLE_DOMAIN);
+                script.src = 'https://plausible.io/js/script.js';
+                document.head.appendChild(script);
+            }
+        }
+
+        // Feature Toggle Functions
+        function toggleScanlines(enable) {
+            const scanlines = document.querySelector('body::before');
+            if (enable) {
+                document.body.style.setProperty('--scanline-opacity', CONFIG.THEME.SCANLINE_OPACITY);
+            } else {
+                document.body.style.setProperty('--scanline-opacity', '0');
+            }
+        }
+
+        // Configuration Constants with Environment Variable Support
         const CONFIG = {
-            CAT_SIZE: 32,
-            TRIANGLE_THRESHOLD: 6,
-            TRIANGLE_RADIUS: 100,
-            ANIMATION_DURATION: 3000,
-            BLINK_PROBABILITY: 0.3,
+            CAT_SIZE: parseInt(window.ENV?.CAT_SIZE) || 32,
+            TRIANGLE_THRESHOLD: parseInt(window.ENV?.CAT_TRIANGLE_THRESHOLD) || 6,
+            TRIANGLE_RADIUS: parseInt(window.ENV?.TRIANGLE_RADIUS) || 100,
+            ANIMATION_DURATION: parseInt(window.ENV?.CAT_ANIMATION_DURATION) || 3000,
+            BLINK_PROBABILITY: parseFloat(window.ENV?.CAT_BLINK_PROBABILITY) || 0.3,
             AUDIO_FREQUENCIES: {
-                MEOW_BASE: 200,
-                MEOW_RANGE: 300,
-                AMBIENT_BASE: 150,
-                SPECIAL_BASE: 400
+                MEOW_BASE: parseInt(window.ENV?.AUDIO_MEOW_BASE) || 200,
+                MEOW_RANGE: parseInt(window.ENV?.AUDIO_MEOW_RANGE) || 300,
+                AMBIENT_BASE: parseInt(window.ENV?.AUDIO_AMBIENT_BASE) || 150,
+                SPECIAL_BASE: parseInt(window.ENV?.AUDIO_SPECIAL_BASE) || 400
+            },
+            // UI Customization
+            THEME: {
+                PRIMARY_BG: window.ENV?.THEME_PRIMARY_BG || '#000000',
+                PRIMARY_TEXT: window.ENV?.THEME_PRIMARY_TEXT || '#ffffff',
+                BORDER_COLOR: window.ENV?.THEME_BORDER_COLOR || '#ffffff',
+                SCANLINE_OPACITY: parseFloat(window.ENV?.THEME_SCANLINE_OPACITY) || 0.1
+            },
+            // Feature Flags
+            FEATURES: {
+                ENABLE_AUDIO: window.ENV?.ENABLE_AUDIO !== 'false',
+                ENABLE_SCANLINES: window.ENV?.ENABLE_SCANLINES !== 'false',
+                ENABLE_BLINKING: window.ENV?.ENABLE_BLINKING !== 'false',
+                ENABLE_ANALYTICS: window.ENV?.ENABLE_ANALYTICS === 'true'
             }
         };
 
@@ -378,16 +462,19 @@
             }
 
             playMeow() {
+                if (!CONFIG.FEATURES.ENABLE_AUDIO) return;
                 const frequency = CONFIG.AUDIO_FREQUENCIES.MEOW_BASE + 
                                 Math.random() * CONFIG.AUDIO_FREQUENCIES.MEOW_RANGE;
                 this.createOscillator(frequency, 0.3);
             }
 
             playAmbient() {
+                if (!CONFIG.FEATURES.ENABLE_AUDIO) return;
                 this.createOscillator(CONFIG.AUDIO_FREQUENCIES.AMBIENT_BASE, 1, 0.1);
             }
 
             playSpecial() {
+                if (!CONFIG.FEATURES.ENABLE_AUDIO) return;
                 this.createOscillator(CONFIG.AUDIO_FREQUENCIES.SPECIAL_BASE, 0.5, 0.5);
             }
         }
@@ -546,13 +633,13 @@
             }
 
             scheduleBlink(cat) {
-                if (Math.random() < CONFIG.BLINK_PROBABILITY) {
-                    const delay = Math.random() * 2000;
-                    setTimeout(() => {
-                        cat.classList.add('blinking');
-                        setTimeout(() => cat.classList.remove('blinking'), CONFIG.ANIMATION_DURATION);
-                    }, delay);
-                }
+                if (!CONFIG.FEATURES.ENABLE_BLINKING || Math.random() >= CONFIG.BLINK_PROBABILITY) return;
+                
+                const delay = Math.random() * 2000;
+                setTimeout(() => {
+                    cat.classList.add('blinking');
+                    setTimeout(() => cat.classList.remove('blinking'), CONFIG.ANIMATION_DURATION);
+                }, delay);
             }
 
             updateUI() {
@@ -600,8 +687,68 @@
         }
 
         // Initialize Application
-        document.addEventListener('DOMContentLoaded', () => {
-            new CatProtocol();
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Load environment configuration first
+            await loadEnvironmentConfig();
+            // Apply theme from configuration
+            applyTheme(CONFIG.THEME);
+            
+            // Initialize analytics
+            initAnalytics();
+            
+            // Apply feature toggles
+            if (!CONFIG.FEATURES.ENABLE_SCANLINES) {
+                toggleScanlines(false);
+            }
+            
+            // Initialize the Cat Protocol
+            const catProtocol = new CatProtocol();
+            
+            // Add analytics event tracking
+            if (CONFIG.FEATURES.ENABLE_ANALYTICS && window.gtag) {
+                // Track cat spawns
+                const originalSpawnCat = catProtocol.spawnCat.bind(catProtocol);
+                catProtocol.spawnCat = function(x, y) {
+                    window.gtag('event', 'cat_spawn', {
+                        event_category: 'gameplay',
+                        event_label: `position_${Math.floor(x)}_${Math.floor(y)}`,
+                        value: this.cats.size + 1
+                    });
+                    return originalSpawnCat(x, y);
+                };
+                
+                // Track triangle formations
+                const originalFormTriangle = catProtocol.formTriangle.bind(catProtocol);
+                catProtocol.formTriangle = function() {
+                    window.gtag('event', 'triangle_formation', {
+                        event_category: 'gameplay',
+                        event_label: 'triangle_activated',
+                        value: this.cats.size
+                    });
+                    return originalFormTriangle();
+                };
+                
+                // Track resets
+                const originalReset = catProtocol.reset.bind(catProtocol);
+                catProtocol.reset = function() {
+                    window.gtag('event', 'game_reset', {
+                        event_category: 'gameplay',
+                        event_label: 'manual_reset',
+                        value: this.cats.size
+                    });
+                    return originalReset();
+                };
+            }
+            
+            // Expose for debugging and customization
+            window.CatProtocol = catProtocol;
+            window.CONFIG = CONFIG;
+            
+            console.log('🐱 Cat Protocol v2.0 Initialized');
+            console.log('Configuration:', CONFIG);
+            if (window.ENV && Object.keys(window.ENV).length > 0) {
+                console.log('Environment Variables:', window.ENV);
+            }
         });
     </script>
 </body>

@@ -1,0 +1,42 @@
+{
+  "name": "resident-evil-cat-protocol",
+  "version": "2.0.0",
+  "description": "An interactive Resident Evil-themed cat spawning protocol with pixel art cats and triangle formations",
+  "main": "resident-evil-cats.html",
+  "scripts": {
+    "dev": "vercel dev",
+    "build": "echo 'No build process needed for static HTML'",
+    "start": "vercel dev",
+    "deploy": "vercel --prod",
+    "preview": "vercel"
+  },
+  "keywords": [
+    "resident-evil",
+    "cats",
+    "pixel-art",
+    "interactive",
+    "web-game",
+    "javascript",
+    "html5",
+    "canvas"
+  ],
+  "author": "Cat Protocol Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/resident-evil-cat-protocol.git"
+  },
+  "homepage": "https://resident-evil-cat-protocol.vercel.app",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "devDependencies": {
+    "vercel": "^32.0.0"
+  },
+  "vercel": {
+    "outputDirectory": ".",
+    "installCommand": "echo 'No install needed'",
+    "buildCommand": "echo 'No build needed'",
+    "devCommand": "echo 'Serving static files'"
+  }
+}
