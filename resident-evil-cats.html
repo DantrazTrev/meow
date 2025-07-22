@@ -4,8 +4,33 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RESIDENT EVIL: CAT PROTOCOL</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&family=Exo+2:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary-bg: #0a0a0f;
+            --secondary-bg: #1a1a2e;
+            --tertiary-bg: #16213e;
+            --accent-bg: #0f3460;
+            --primary-text: #e9ecef;
+            --secondary-text: #adb5bd;
+            --accent-text: #00d2ff;
+            --highlight-text: #ff6b9d;
+            --border-color: #495057;
+            --accent-border: #00d2ff;
+            --glow-color: #00d2ff;
+            --warning-color: #ff6b9d;
+            --success-color: #4ecdc4;
+            --hover-bg: linear-gradient(135deg, #00d2ff 0%, #3a7bd5 100%);
+            --hover-text: #0a0a0f;
+            --scanline-opacity: 0.05;
+            --transition-standard: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            --transition-bounce: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            --cat-size: 48px;
+            --triangle-radius: 120px;
+            --shadow-glow: 0 0 20px rgba(0, 210, 255, 0.3);
+            --shadow-intense: 0 0 40px rgba(0, 210, 255, 0.6);
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -13,220 +38,362 @@
         }
 
         body {
-            background: #000;
-            color: #fff;
-            font-family: 'Orbitron', monospace;
+            background: radial-gradient(ellipse at center, var(--secondary-bg) 0%, var(--primary-bg) 70%);
+            color: var(--primary-text);
+            font-family: 'Exo 2', 'Rajdhani', monospace;
             overflow: hidden;
             cursor: crosshair;
             position: relative;
+            height: 100vh;
+            background-attachment: fixed;
         }
 
-        /* CRT Scanline Effect */
-        body::before {
+        /* Animated background grid */
+        body::after {
             content: '';
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 210, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 210, 255, 0.05) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: 1;
+            animation: gridPulse 4s ease-in-out infinite;
+        }
+
+        @keyframes gridPulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.6; }
+        }
+
+        /* Enhanced CRT Scanline Effect */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
             background: linear-gradient(
                 transparent 50%,
-                rgba(0, 0, 0, 0.1) 50%
+                rgba(0, 210, 255, var(--scanline-opacity)) 50%
             );
-            background-size: 100% 4px;
+            background-size: 100% 3px;
             pointer-events: none;
             z-index: 1000;
-            animation: scanline 0.1s linear infinite;
+            animation: scanline 0.08s linear infinite;
         }
 
         @keyframes scanline {
             0% { transform: translateY(0); }
-            100% { transform: translateY(4px); }
+            100% { transform: translateY(3px); }
         }
 
-        /* Main Container */
-        .container {
+        /* Main Layout */
+        .app-container {
             position: relative;
             width: 100vw;
             height: 100vh;
-            display: flex;
-            flex-direction: column;
+            display: grid;
+            grid-template-rows: auto 1fr;
         }
 
-        /* Status Bar */
+        /* Status Bar - RE Village Style */
         .status-bar {
-            background: #000;
-            border: 2px solid #fff;
-            border-bottom: none;
-            padding: 10px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 14px;
-            font-weight: 700;
+            background: linear-gradient(135deg, var(--secondary-bg) 0%, var(--tertiary-bg) 100%);
+            border: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--accent-border);
+            padding: 1.25rem 2rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 2.5rem;
+            font-family: 'Rajdhani', monospace;
+            font-size: 0.95rem;
+            font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 2px;
+            letter-spacing: 0.15rem;
+            position: relative;
+            backdrop-filter: blur(10px);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .status-bar::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent 0%, var(--accent-text) 50%, transparent 100%);
         }
 
         .status-item {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 1rem;
+            position: relative;
+        }
+
+        .status-item::before {
+            content: '▶';
+            color: var(--accent-text);
+            font-size: 0.7rem;
+            margin-right: 0.5rem;
+            animation: pulse 2s ease-in-out infinite;
         }
 
         .status-value {
-            color: #fff;
-            font-weight: 900;
-        }
-
-        /* Menu Interface */
-        .menu-interface {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: #000;
-            border: 3px solid #fff;
-            padding: 30px;
-            min-width: 400px;
-            z-index: 100;
-            pointer-events: none;
-        }
-
-        .menu-title {
-            text-align: center;
-            font-size: 24px;
-            font-weight: 900;
-            margin-bottom: 30px;
-            text-transform: uppercase;
-            letter-spacing: 3px;
-            border-bottom: 2px solid #fff;
-            padding-bottom: 15px;
-        }
-
-        .menu-options {
-            list-style: none;
-            margin-bottom: 30px;
-        }
-
-        .menu-option {
-            padding: 10px 0;
-            font-size: 16px;
+            color: var(--accent-text);
             font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            border-bottom: 1px solid #333;
-            transition: all 0.3s ease;
+            font-family: 'Orbitron', monospace;
+            text-shadow: 0 0 10px var(--glow-color);
+            transition: var(--transition-standard);
         }
 
-        .menu-option:hover {
-            background: #fff;
-            color: #000;
-            padding-left: 10px;
+        .status-value.warning {
+            color: var(--warning-color);
+            text-shadow: 0 0 10px var(--warning-color);
+        }
+
+        .status-value.success {
+            color: var(--success-color);
+            text-shadow: 0 0 10px var(--success-color);
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        /* Subtle Instruction Overlay */
+        .instruction-overlay {
+            position: fixed;
+            bottom: 50%;
+            left: 50%;
+            transform: translate(-50%, 50%);
+            color: var(--secondary-text);
+            font-family: 'Exo 2', monospace;
+            font-size: 1.1rem;
+            font-weight: 300;
+            text-align: center;
+            letter-spacing: 0.1rem;
+            opacity: 0.7;
+            z-index: 50;
+            pointer-events: none;
+            animation: breathe 4s ease-in-out infinite;
+            text-shadow: 0 0 10px rgba(0, 210, 255, 0.3);
+        }
+
+        .instruction-overlay.fade-out {
+            animation: fadeOut 2s ease-out forwards;
+        }
+
+        @keyframes breathe {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 0.9; }
+        }
+
+        @keyframes fadeOut {
+            to { opacity: 0; }
         }
 
         /* Cat Container */
-        .cat-container {
+        .cat-playground {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            inset: 0;
             pointer-events: none;
         }
 
         .cat {
             position: absolute;
-            width: 32px;
-            height: 32px;
+            width: var(--cat-size);
+            height: var(--cat-size);
             pointer-events: none;
-            transition: all 3s ease-in-out;
+            transition: all 3s cubic-bezier(0.4, 0, 0.2, 1);
             image-rendering: pixelated;
+            will-change: transform;
+            filter: drop-shadow(0 0 8px var(--glow-color));
         }
 
-        /* Pixel Cat Canvas */
         .cat-canvas {
             width: 100%;
             height: 100%;
+            border-radius: 2px;
         }
 
-        /* Triangle Formation */
-        .triangle-formation {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 200px;
-            height: 200px;
+        .cat.spawning {
+            animation: catSpawn 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
         }
 
-        /* Special Effects */
+        .cat.moving {
+            animation: catFloat 2s ease-in-out infinite;
+        }
+
+        @keyframes catSpawn {
+            0% {
+                transform: scale(0) rotate(180deg);
+                opacity: 0;
+                filter: drop-shadow(0 0 20px var(--accent-text)) hue-rotate(90deg);
+            }
+            50% {
+                transform: scale(1.2) rotate(90deg);
+                opacity: 0.8;
+            }
+            100% {
+                transform: scale(1) rotate(0deg);
+                opacity: 1;
+                filter: drop-shadow(0 0 8px var(--glow-color));
+            }
+        }
+
+        @keyframes catFloat {
+            0%, 100% {
+                transform: translateY(0px);
+                filter: drop-shadow(0 0 8px var(--glow-color));
+            }
+            50% {
+                transform: translateY(-3px);
+                filter: drop-shadow(0 0 12px var(--accent-text));
+            }
+        }
+
+        /* Enhanced Special Effects - RE Village Style */
         .special-message {
-            position: absolute;
+            position: fixed;
             top: 50%;
             left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 32px;
-            font-weight: 900;
+            transform: translate(-50%, -50%) scale(0.8);
+            font-size: 2.5rem;
+            font-weight: 200;
+            font-family: 'Exo 2', monospace;
             text-align: center;
             text-transform: uppercase;
-            letter-spacing: 4px;
-            color: #fff;
-            background: #000;
-            border: 4px solid #fff;
-            padding: 40px;
+            letter-spacing: 0.4rem;
+            color: var(--highlight-text);
+            background: linear-gradient(135deg, rgba(10, 10, 15, 0.98) 0%, rgba(26, 26, 46, 0.98) 100%);
+            border: 2px solid var(--warning-color);
+            border-radius: 12px;
+            padding: 3rem 4rem;
             z-index: 200;
             opacity: 0;
-            transition: opacity 1s ease;
+            transition: all 1.2s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            backdrop-filter: blur(25px);
+            box-shadow: 
+                0 0 60px rgba(255, 107, 157, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            position: relative;
+        }
+
+        .special-message::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, var(--warning-color), var(--accent-text), var(--warning-color));
+            border-radius: 12px;
+            z-index: -1;
+            animation: borderGlow 2s ease-in-out infinite;
+        }
+
+        .special-message::after {
+            content: '◆ ◆ ◆';
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: var(--warning-color);
+            font-size: 1.2rem;
+            letter-spacing: 1rem;
+            animation: sparkle 1.5s ease-in-out infinite;
         }
 
         .special-message.show {
             opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
         }
 
-        /* Reset Button */
+        @keyframes borderGlow {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        @keyframes sparkle {
+            0%, 100% { opacity: 0.4; transform: translateX(-50%) rotate(0deg); }
+            50% { opacity: 1; transform: translateX(-50%) rotate(180deg); }
+        }
+
+        /* Enhanced Reset Button - RE Village Style */
         .reset-btn {
-            position: absolute;
-            bottom: 20px;
-            right: 20px;
-            background: #000;
-            border: 2px solid #fff;
-            color: #fff;
-            padding: 10px 20px;
-            font-family: 'Orbitron', monospace;
-            font-size: 12px;
-            font-weight: 700;
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: linear-gradient(135deg, var(--secondary-bg) 0%, var(--tertiary-bg) 100%);
+            border: 1px solid var(--accent-border);
+            color: var(--accent-text);
+            padding: 1rem 2rem;
+            font-family: 'Rajdhani', monospace;
+            font-size: 0.9rem;
+            font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.1rem;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: var(--transition-bounce);
             z-index: 300;
+            border-radius: 6px;
+            backdrop-filter: blur(10px);
+            box-shadow: var(--shadow-glow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .reset-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .reset-btn::after {
+            content: '⟲';
+            position: absolute;
+            left: 0.8rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.1rem;
+            transition: var(--transition-standard);
         }
 
         .reset-btn:hover {
-            background: #fff;
-            color: #000;
+            background: var(--hover-bg);
+            color: var(--hover-text);
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: var(--shadow-intense);
+            border-color: var(--accent-text);
         }
 
-        /* Typewriter Effect */
-        .typewriter {
-            overflow: hidden;
-            border-right: 2px solid #fff;
-            white-space: nowrap;
-            animation: typing 3s steps(40, end), blink-caret 0.75s step-end infinite;
+        .reset-btn:hover::before {
+            left: 100%;
         }
 
-        @keyframes typing {
-            from { width: 0; }
-            to { width: 100%; }
+        .reset-btn:hover::after {
+            transform: translateY(-50%) rotate(180deg);
+            color: var(--hover-text);
         }
 
-        @keyframes blink-caret {
-            from, to { border-color: transparent; }
-            50% { border-color: #fff; }
+        .reset-btn:active {
+            transform: translateY(-1px) scale(1.02);
         }
 
-        /* Blinking Animation */
+
+
+        /* Enhanced Blinking Animation */
         @keyframes blink {
             0%, 90%, 100% { opacity: 1; }
             95% { opacity: 0; }
@@ -235,301 +402,623 @@
         .cat.blinking {
             animation: blink 3s infinite;
         }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .menu-interface {
+                min-width: 300px;
+                padding: 1.5rem;
+            }
+
+            .status-bar {
+                padding: 0.75rem 1rem;
+                font-size: 0.75rem;
+            }
+
+            .special-message {
+                font-size: 1.5rem;
+                padding: 2rem;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="app-container">
         <!-- Status Bar -->
-        <div class="status-bar">
+        <header class="status-bar">
             <div class="status-item">
-                <span>CATS SPAWNED:</span>
-                <span class="status-value" id="cats-count">0</span>
-            </div>
-            <div class="status-item">
-                <span>STATUS:</span>
-                <span class="status-value" id="status">READY</span>
+                <span>CYBER UNITS:</span>
+                <span class="status-value" data-status="cats-count">0</span>
             </div>
             <div class="status-item">
-                <span>TRIANGLE:</span>
-                <span class="status-value" id="triangle-status">INACTIVE</span>
+                <span>NEURAL STATE:</span>
+                <span class="status-value" data-status="status">STANDBY</span>
             </div>
-        </div>
-
-        <!-- Menu Interface -->
-        <div class="menu-interface">
-            <div class="menu-title typewriter">CAT PROTOCOL v1.0</div>
-            <ul class="menu-options">
-                <li class="menu-option">INVENTORY</li>
-                <li class="menu-option">STATUS</li>
-                <li class="menu-option">SAVE/LOAD</li>
-                <li class="menu-option">OPTIONS</li>
-                <li class="menu-option">EXIT</li>
-            </ul>
-            <div style="text-align: center; font-size: 12px; color: #666;">
-                CLICK ANYWHERE TO SPAWN CATS
+            <div class="status-item">
+                <span>FORMATION:</span>
+                <span class="status-value" data-status="triangle-status">OFFLINE</span>
             </div>
-        </div>
+        </header>
 
-        <!-- Cat Container -->
-        <div class="cat-container" id="cat-container"></div>
+        <!-- Main Content Area -->
+        <main class="content-area">
+            <!-- Subtle Instruction -->
+            <div class="instruction-overlay" data-instruction="main">
+                CLICK TO SPAWN CYBER CATS
+            </div>
 
-        <!-- Special Message -->
-        <div class="special-message" id="special-message">
-            TRIANGLE PROTOCOL<br>ACTIVATED
-        </div>
+            <!-- Cat Playground -->
+            <div class="cat-playground" data-playground="cats"></div>
+
+            <!-- Special Message -->
+            <div class="special-message" data-message="special">
+                NEURAL LINK<br>ESTABLISHED<br><span style="font-size: 0.7em; opacity: 0.8;">CYBER TRIANGLE FORMATION COMPLETE</span>
+            </div>
+        </main>
 
         <!-- Reset Button -->
-        <button class="reset-btn" onclick="resetCats()">RESET</button>
+        <button class="reset-btn" data-action="reset">RESET</button>
     </div>
 
     <script>
-        class CatSpawner {
+        'use strict';
+
+        // Environment Variables Injection (populated by Vercel API)
+        window.ENV = {
+            // This will be populated by the /api/config endpoint
+            // or can be set manually for local development
+        };
+
+        // Load configuration from Vercel API
+        async function loadEnvironmentConfig() {
+            try {
+                const response = await fetch('/api/config');
+                if (response.ok) {
+                    const script = document.createElement('script');
+                    script.text = await response.text();
+                    document.head.appendChild(script);
+                }
+            } catch (error) {
+                console.warn('Could not load environment config from API:', error);
+                // Continue with default configuration
+            }
+        }
+
+        // Theme Application Function
+        function applyTheme(theme) {
+            const root = document.documentElement;
+            root.style.setProperty('--primary-bg', theme.PRIMARY_BG);
+            root.style.setProperty('--primary-text', theme.PRIMARY_TEXT);
+            root.style.setProperty('--border-color', theme.BORDER_COLOR);
+            root.style.setProperty('--hover-bg', theme.BORDER_COLOR);
+            root.style.setProperty('--hover-text', theme.PRIMARY_BG);
+            root.style.setProperty('--scanline-opacity', theme.SCANLINE_OPACITY);
+        }
+
+        // Analytics Integration
+        function initAnalytics() {
+            if (!CONFIG.FEATURES.ENABLE_ANALYTICS) return;
+            
+            // Google Analytics 4
+            if (window.ENV?.NEXT_PUBLIC_GA_ID) {
+                const script = document.createElement('script');
+                script.async = true;
+                script.src = `https://www.googletagmanager.com/gtag/js?id=${window.ENV.NEXT_PUBLIC_GA_ID}`;
+                document.head.appendChild(script);
+                
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', window.ENV.NEXT_PUBLIC_GA_ID);
+                window.gtag = gtag;
+            }
+            
+            // Plausible Analytics
+            if (window.ENV?.NEXT_PUBLIC_PLAUSIBLE_DOMAIN) {
+                const script = document.createElement('script');
+                script.defer = true;
+                script.setAttribute('data-domain', window.ENV.NEXT_PUBLIC_PLAUSIBLE_DOMAIN);
+                script.src = 'https://plausible.io/js/script.js';
+                document.head.appendChild(script);
+            }
+        }
+
+        // Feature Toggle Functions
+        function toggleScanlines(enable) {
+            const scanlines = document.querySelector('body::before');
+            if (enable) {
+                document.body.style.setProperty('--scanline-opacity', CONFIG.THEME.SCANLINE_OPACITY);
+            } else {
+                document.body.style.setProperty('--scanline-opacity', '0');
+            }
+        }
+
+        // Configuration Constants with Environment Variable Support
+        const CONFIG = {
+            CAT_SIZE: parseInt(window.ENV?.CAT_SIZE) || 32,
+            TRIANGLE_THRESHOLD: parseInt(window.ENV?.CAT_TRIANGLE_THRESHOLD) || 6,
+            TRIANGLE_RADIUS: parseInt(window.ENV?.TRIANGLE_RADIUS) || 100,
+            ANIMATION_DURATION: parseInt(window.ENV?.CAT_ANIMATION_DURATION) || 3000,
+            BLINK_PROBABILITY: parseFloat(window.ENV?.CAT_BLINK_PROBABILITY) || 0.3,
+            AUDIO_FREQUENCIES: {
+                MEOW_BASE: parseInt(window.ENV?.AUDIO_MEOW_BASE) || 200,
+                MEOW_RANGE: parseInt(window.ENV?.AUDIO_MEOW_RANGE) || 300,
+                AMBIENT_BASE: parseInt(window.ENV?.AUDIO_AMBIENT_BASE) || 150,
+                SPECIAL_BASE: parseInt(window.ENV?.AUDIO_SPECIAL_BASE) || 400
+            },
+            // UI Customization
+            THEME: {
+                PRIMARY_BG: window.ENV?.THEME_PRIMARY_BG || '#000000',
+                PRIMARY_TEXT: window.ENV?.THEME_PRIMARY_TEXT || '#ffffff',
+                BORDER_COLOR: window.ENV?.THEME_BORDER_COLOR || '#ffffff',
+                SCANLINE_OPACITY: parseFloat(window.ENV?.THEME_SCANLINE_OPACITY) || 0.1
+            },
+            // Feature Flags
+            FEATURES: {
+                ENABLE_AUDIO: window.ENV?.ENABLE_AUDIO !== 'false',
+                ENABLE_SCANLINES: window.ENV?.ENABLE_SCANLINES !== 'false',
+                ENABLE_BLINKING: window.ENV?.ENABLE_BLINKING !== 'false',
+                ENABLE_ANALYTICS: window.ENV?.ENABLE_ANALYTICS === 'true'
+            }
+        };
+
+        // Audio System
+        class AudioSystem {
             constructor() {
-                this.cats = [];
-                this.catCount = 0;
-                this.triangleThreshold = 6;
-                this.isTriangleForming = false;
-                this.meowSounds = [];
-                this.container = document.getElementById('cat-container');
-                this.catsCountElement = document.getElementById('cats-count');
-                this.statusElement = document.getElementById('status');
-                this.triangleStatusElement = document.getElementById('triangle-status');
-                this.specialMessageElement = document.getElementById('special-message');
-                
-                this.initAudio();
-                this.bindEvents();
+                this.context = null;
+                this.meowVariations = 5;
+                this.initializeContext();
             }
 
-            initAudio() {
-                // Create multiple meow sound variations using Web Audio API
-                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                
-                for (let i = 0; i < 5; i++) {
-                    this.meowSounds.push(() => {
-                        const oscillator = audioContext.createOscillator();
-                        const gainNode = audioContext.createGain();
-                        
-                        oscillator.connect(gainNode);
-                        gainNode.connect(audioContext.destination);
-                        
-                        oscillator.frequency.setValueAtTime(200 + Math.random() * 300, audioContext.currentTime);
-                        oscillator.frequency.exponentialRampToValueAtTime(100, audioContext.currentTime + 0.3);
-                        
-                        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-                        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
-                        
-                        oscillator.start(audioContext.currentTime);
-                        oscillator.stop(audioContext.currentTime + 0.3);
-                    });
+            initializeContext() {
+                try {
+                    this.context = new (window.AudioContext || window.webkitAudioContext)();
+                } catch (error) {
+                    console.warn('Audio context not available:', error);
                 }
             }
 
-            bindEvents() {
-                document.addEventListener('click', (e) => {
-                    if (e.target.classList.contains('reset-btn')) return;
-                    this.spawnCat(e.clientX, e.clientY);
-                });
+            createOscillator(frequency, duration, gain = 0.3) {
+                if (!this.context) return;
+
+                const oscillator = this.context.createOscillator();
+                const gainNode = this.context.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(this.context.destination);
+                
+                oscillator.frequency.setValueAtTime(frequency, this.context.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(
+                    frequency * 0.5, 
+                    this.context.currentTime + duration
+                );
+                
+                gainNode.gain.setValueAtTime(gain, this.context.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, this.context.currentTime + duration);
+                
+                oscillator.start(this.context.currentTime);
+                oscillator.stop(this.context.currentTime + duration);
             }
 
-            spawnCat(x, y) {
-                const cat = this.createCatElement(x, y);
-                this.container.appendChild(cat);
-                this.cats.push(cat);
-                this.catCount++;
+            playMeow() {
+                if (!CONFIG.FEATURES.ENABLE_AUDIO) return;
+                const frequency = CONFIG.AUDIO_FREQUENCIES.MEOW_BASE + 
+                                Math.random() * CONFIG.AUDIO_FREQUENCIES.MEOW_RANGE;
+                this.createOscillator(frequency, 0.3);
+            }
+
+            playAmbient() {
+                if (!CONFIG.FEATURES.ENABLE_AUDIO) return;
+                this.createOscillator(CONFIG.AUDIO_FREQUENCIES.AMBIENT_BASE, 1, 0.1);
+            }
+
+            playSpecial() {
+                if (!CONFIG.FEATURES.ENABLE_AUDIO) return;
+                this.createOscillator(CONFIG.AUDIO_FREQUENCIES.SPECIAL_BASE, 0.5, 0.5);
+            }
+        }
+
+        // Futuristic Cat Renderer
+        class CatRenderer {
+            static drawPixelCat(canvas) {
+                const ctx = canvas.getContext('2d');
+                ctx.imageSmoothingEnabled = false;
                 
-                this.updateUI();
-                this.playMeow();
-                this.checkTriangleFormation();
+                const variations = {
+                    breed: Math.floor(Math.random() * 4), // 4 different cat breeds
+                    cyberEyes: Math.random() > 0.3, // 70% chance of cyber eyes
+                    armor: Math.random() > 0.6, // 40% chance of armor
+                    antenna: Math.random() > 0.7, // 30% chance of antenna
+                    hologram: Math.random() > 0.8 // 20% chance of holographic effect
+                };
                 
-                // Random blinking
-                if (Math.random() < 0.3) {
-                    setTimeout(() => {
-                        cat.classList.add('blinking');
-                        setTimeout(() => cat.classList.remove('blinking'), 3000);
-                    }, Math.random() * 2000);
+                // Clear canvas with transparent black
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+                ctx.fillRect(0, 0, CONFIG.CAT_SIZE, CONFIG.CAT_SIZE);
+                
+                // Base cat colors (futuristic palette)
+                const catColors = [
+                    '#e9ecef', // White
+                    '#adb5bd', // Silver
+                    '#495057', // Dark gray
+                    '#00d2ff'  // Cyber blue
+                ];
+                
+                const baseColor = catColors[variations.breed];
+                ctx.fillStyle = baseColor;
+                
+                // Main body structure based on breed
+                this.drawCatBody(ctx, variations, baseColor);
+                this.drawCyberEnhancements(ctx, variations);
+                this.drawHolographicEffect(ctx, variations);
+            }
+            
+            static drawCatBody(ctx, variations, baseColor) {
+                ctx.fillStyle = baseColor;
+                
+                // Head (larger and more detailed)
+                ctx.fillRect(6, 6, 20, 16);
+                
+                // Ears with different shapes
+                switch(variations.breed) {
+                    case 0: // Pointy ears
+                        ctx.fillRect(4, 4, 6, 8);
+                        ctx.fillRect(22, 4, 6, 8);
+                        break;
+                    case 1: // Round ears
+                        ctx.fillRect(6, 2, 4, 10);
+                        ctx.fillRect(22, 2, 4, 10);
+                        break;
+                    case 2: // Large ears
+                        ctx.fillRect(2, 2, 8, 12);
+                        ctx.fillRect(22, 2, 8, 12);
+                        break;
+                    case 3: // Cyber ears with antennas
+                        ctx.fillRect(6, 4, 4, 8);
+                        ctx.fillRect(22, 4, 4, 8);
+                        if (variations.antenna) {
+                            ctx.fillStyle = '#00d2ff';
+                            ctx.fillRect(7, 2, 2, 4);
+                            ctx.fillRect(23, 2, 2, 4);
+                            ctx.fillRect(6, 1, 4, 1);
+                            ctx.fillRect(22, 1, 4, 1);
+                            ctx.fillStyle = baseColor;
+                        }
+                        break;
                 }
+                
+                // Body
+                ctx.fillRect(8, 22, 16, 12);
+                
+                // Legs (robotic style)
+                ctx.fillRect(10, 34, 3, 8);
+                ctx.fillRect(13, 34, 3, 8);
+                ctx.fillRect(18, 34, 3, 8);
+                ctx.fillRect(21, 34, 3, 8);
+                
+                // Tail (curved and futuristic)
+                ctx.fillRect(24, 24, 4, 2);
+                ctx.fillRect(26, 22, 2, 2);
+                ctx.fillRect(28, 20, 2, 2);
+                ctx.fillRect(30, 18, 2, 4);
+            }
+            
+            static drawCyberEnhancements(ctx, variations) {
+                // Cyber eyes
+                if (variations.cyberEyes) {
+                    ctx.fillStyle = '#00d2ff';
+                    ctx.fillRect(10, 12, 3, 3);
+                    ctx.fillRect(19, 12, 3, 3);
+                    
+                    // Eye glow effect
+                    ctx.fillStyle = '#ff6b9d';
+                    ctx.fillRect(11, 13, 1, 1);
+                    ctx.fillRect(20, 13, 1, 1);
+                } else {
+                    // Normal eyes
+                    ctx.fillStyle = '#000';
+                    ctx.fillRect(11, 13, 2, 2);
+                    ctx.fillRect(20, 13, 2, 2);
+                }
+                
+                // Armor plating
+                if (variations.armor) {
+                    ctx.fillStyle = '#495057';
+                    ctx.fillRect(8, 20, 16, 2); // Chest armor
+                    ctx.fillRect(12, 24, 8, 2); // Belt
+                    
+                    // Armor details
+                    ctx.fillStyle = '#00d2ff';
+                    ctx.fillRect(15, 21, 2, 1);
+                    ctx.fillRect(14, 25, 4, 1);
+                }
+                
+                // Nose and mouth (cyber style)
+                ctx.fillStyle = '#ff6b9d';
+                ctx.fillRect(15, 17, 2, 1);
+                ctx.fillStyle = '#adb5bd';
+                ctx.fillRect(14, 19, 4, 1);
+                
+                // Data ports
+                ctx.fillStyle = '#00d2ff';
+                ctx.fillRect(5, 14, 1, 1);
+                ctx.fillRect(26, 14, 1, 1);
+            }
+            
+            static drawHolographicEffect(ctx, variations) {
+                if (!variations.hologram) return;
+                
+                // Holographic shimmer lines
+                ctx.fillStyle = 'rgba(0, 210, 255, 0.3)';
+                for (let i = 0; i < CONFIG.CAT_SIZE; i += 4) {
+                    ctx.fillRect(0, i, CONFIG.CAT_SIZE, 1);
+                }
+                
+                // Glitch effect
+                ctx.fillStyle = 'rgba(255, 107, 157, 0.2)';
+                ctx.fillRect(Math.random() * CONFIG.CAT_SIZE, Math.random() * CONFIG.CAT_SIZE, 2, 1);
+                ctx.fillRect(Math.random() * CONFIG.CAT_SIZE, Math.random() * CONFIG.CAT_SIZE, 1, 2);
             }
 
-            createCatElement(x, y) {
+            static createElement(x, y) {
                 const cat = document.createElement('div');
-                cat.className = 'cat';
-                cat.style.left = (x - 16) + 'px';
-                cat.style.top = (y - 16) + 'px';
+                cat.className = 'cat spawning';
+                cat.style.left = `${x - CONFIG.CAT_SIZE / 2}px`;
+                cat.style.top = `${y - CONFIG.CAT_SIZE / 2}px`;
                 
                 const canvas = document.createElement('canvas');
-                canvas.width = 32;
-                canvas.height = 32;
+                canvas.width = CONFIG.CAT_SIZE;
+                canvas.height = CONFIG.CAT_SIZE;
                 canvas.className = 'cat-canvas';
                 
                 this.drawPixelCat(canvas);
                 cat.appendChild(canvas);
                 
+                // Remove spawning animation and add floating after spawn
+                setTimeout(() => {
+                    cat.classList.remove('spawning');
+                    if (Math.random() > 0.7) { // 30% chance to float
+                        cat.classList.add('moving');
+                    }
+                }, 800);
+                
                 return cat;
             }
+        }
 
-            drawPixelCat(canvas) {
-                const ctx = canvas.getContext('2d');
-                ctx.imageSmoothingEnabled = false;
-                
-                // Random variations
-                const earVariation = Math.random() > 0.5;
-                const tailVariation = Math.random() > 0.5;
-                const expressionVariation = Math.random() > 0.5;
-                
-                // Clear canvas
-                ctx.fillStyle = '#000';
-                ctx.fillRect(0, 0, 32, 32);
-                
-                // Cat body (white)
-                ctx.fillStyle = '#fff';
-                
-                // Head
-                ctx.fillRect(8, 8, 16, 12);
-                
-                // Ears
-                if (earVariation) {
-                    ctx.fillRect(6, 6, 4, 6);
-                    ctx.fillRect(22, 6, 4, 6);
-                } else {
-                    ctx.fillRect(8, 4, 4, 8);
-                    ctx.fillRect(20, 4, 4, 8);
-                }
-                
-                // Body
-                ctx.fillRect(10, 20, 12, 8);
-                
-                // Tail
-                if (tailVariation) {
-                    ctx.fillRect(20, 22, 6, 2);
-                    ctx.fillRect(24, 20, 2, 2);
-                } else {
-                    ctx.fillRect(18, 24, 8, 2);
-                }
-                
-                // Eyes
-                ctx.fillStyle = '#000';
-                if (expressionVariation) {
-                    ctx.fillRect(10, 12, 2, 2);
-                    ctx.fillRect(20, 12, 2, 2);
-                } else {
-                    ctx.fillRect(11, 11, 2, 3);
-                    ctx.fillRect(19, 11, 2, 3);
-                }
-                
-                // Nose
-                ctx.fillRect(15, 15, 2, 1);
-                
-                // Mouth
-                ctx.fillRect(14, 17, 4, 1);
+        // UI Manager
+        class UIManager {
+            constructor() {
+                this.elements = this.cacheElements();
             }
 
-            playMeow() {
-                const randomMeow = this.meowSounds[Math.floor(Math.random() * this.meowSounds.length)];
-                randomMeow();
+            cacheElements() {
+                return {
+                    catsCount: document.querySelector('[data-status="cats-count"]'),
+                    status: document.querySelector('[data-status="status"]'),
+                    triangleStatus: document.querySelector('[data-status="triangle-status"]'),
+                    specialMessage: document.querySelector('[data-message="special"]'),
+                    playground: document.querySelector('[data-playground="cats"]'),
+                    resetButton: document.querySelector('[data-action="reset"]'),
+                    instruction: document.querySelector('[data-instruction="main"]')
+                };
+            }
+
+            updateStatus(catCount, isTriangleReady, triangleActive) {
+                this.elements.catsCount.textContent = catCount;
+                this.elements.catsCount.className = this.getStatusClass(catCount);
+                
+                const statusText = this.getStatusText(catCount, isTriangleReady);
+                this.elements.status.textContent = statusText;
+                this.elements.status.className = this.getStatusClass(catCount, isTriangleReady);
+                
+                const triangleText = triangleActive ? 'ONLINE' : 'OFFLINE';
+                this.elements.triangleStatus.textContent = triangleText;
+                this.elements.triangleStatus.className = triangleActive ? 'status-value success' : 'status-value';
+            }
+
+            getStatusText(catCount, isTriangleReady) {
+                if (isTriangleReady) return 'FORMATION READY';
+                if (catCount > 0) return 'DEPLOYING';
+                return 'STANDBY';
+            }
+
+            getStatusClass(catCount, isTriangleReady = false) {
+                if (isTriangleReady) return 'status-value warning';
+                if (catCount >= CONFIG.TRIANGLE_THRESHOLD * 0.7) return 'status-value warning';
+                if (catCount > 0) return 'status-value';
+                return 'status-value';
+            }
+
+            hideInstruction() {
+                if (this.elements.instruction) {
+                    this.elements.instruction.classList.add('fade-out');
+                    setTimeout(() => {
+                        if (this.elements.instruction) {
+                            this.elements.instruction.style.display = 'none';
+                        }
+                    }, 2000);
+                }
+            }
+
+            showSpecialMessage() {
+                this.elements.specialMessage.classList.add('show');
+                this.elements.status.textContent = 'NEURAL LINK ACTIVE';
+                this.elements.status.className = 'status-value success';
+                
+                setTimeout(() => {
+                    this.elements.specialMessage.classList.remove('show');
+                }, CONFIG.ANIMATION_DURATION);
+            }
+        }
+
+        // Main Cat Protocol Application
+        class CatProtocol {
+            constructor() {
+                this.cats = new Set();
+                this.isTriangleForming = false;
+                this.firstClick = true;
+                
+                this.audioSystem = new AudioSystem();
+                this.uiManager = new UIManager();
+                
+                this.bindEvents();
+            }
+
+            bindEvents() {
+                document.addEventListener('click', this.handleClick.bind(this));
+                this.uiManager.elements.resetButton.addEventListener('click', this.reset.bind(this));
+            }
+
+            handleClick(event) {
+                if (event.target.closest('[data-action="reset"]')) return;
+                
+                if (this.firstClick) {
+                    this.audioSystem.playAmbient();
+                    this.firstClick = false;
+                }
+                
+                this.spawnCat(event.clientX, event.clientY);
+            }
+
+            spawnCat(x, y) {
+                const cat = CatRenderer.createElement(x, y);
+                this.uiManager.elements.playground.appendChild(cat);
+                this.cats.add(cat);
+                
+                // Hide instruction after first cat
+                if (this.cats.size === 1) {
+                    this.uiManager.hideInstruction();
+                }
+                
+                this.updateUI();
+                this.audioSystem.playMeow();
+                this.scheduleBlink(cat);
+                this.checkTriangleFormation();
+            }
+
+            scheduleBlink(cat) {
+                if (!CONFIG.FEATURES.ENABLE_BLINKING || Math.random() >= CONFIG.BLINK_PROBABILITY) return;
+                
+                const delay = Math.random() * 2000;
+                setTimeout(() => {
+                    cat.classList.add('blinking');
+                    setTimeout(() => cat.classList.remove('blinking'), CONFIG.ANIMATION_DURATION);
+                }, delay);
             }
 
             updateUI() {
-                this.catsCountElement.textContent = this.catCount;
-                this.statusElement.textContent = this.catCount >= this.triangleThreshold ? 'TRIANGLE READY' : 'SPAWNING';
+                const catCount = this.cats.size;
+                const isTriangleReady = catCount >= CONFIG.TRIANGLE_THRESHOLD;
+                this.uiManager.updateStatus(catCount, isTriangleReady, this.isTriangleForming);
             }
 
             checkTriangleFormation() {
-                if (this.catCount >= this.triangleThreshold && !this.isTriangleForming) {
+                if (this.cats.size >= CONFIG.TRIANGLE_THRESHOLD && !this.isTriangleForming) {
                     this.isTriangleForming = true;
-                    this.triangleStatusElement.textContent = 'ACTIVE';
-                    this.statusElement.textContent = 'FORMING TRIANGLE';
+                    this.uiManager.updateStatus(this.cats.size, true, true);
                     
-                    setTimeout(() => {
-                        this.formTriangle();
-                    }, 1000);
+                    setTimeout(() => this.formTriangle(), 1000);
                 }
             }
 
             formTriangle() {
                 const centerX = window.innerWidth / 2;
                 const centerY = window.innerHeight / 2;
-                const radius = 100;
+                const catArray = Array.from(this.cats);
                 
-                this.cats.forEach((cat, index) => {
-                    const angle = (index / this.cats.length) * 2 * Math.PI;
-                    const x = centerX + Math.cos(angle) * radius;
-                    const y = centerY + Math.sin(angle) * radius;
+                catArray.forEach((cat, index) => {
+                    const angle = (index / catArray.length) * 2 * Math.PI;
+                    const x = centerX + Math.cos(angle) * CONFIG.TRIANGLE_RADIUS;
+                    const y = centerY + Math.sin(angle) * CONFIG.TRIANGLE_RADIUS;
                     
-                    cat.style.left = (x - 16) + 'px';
-                    cat.style.top = (y - 16) + 'px';
+                    cat.style.left = `${x - CONFIG.CAT_SIZE / 2}px`;
+                    cat.style.top = `${y - CONFIG.CAT_SIZE / 2}px`;
                 });
                 
                 setTimeout(() => {
-                    this.showSpecialMessage();
-                }, 3000);
-            }
-
-            showSpecialMessage() {
-                this.specialMessageElement.classList.add('show');
-                this.statusElement.textContent = 'TRIANGLE COMPLETE';
-                
-                // Play special sound
-                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                const oscillator = audioContext.createOscillator();
-                const gainNode = audioContext.createGain();
-                
-                oscillator.connect(gainNode);
-                gainNode.connect(audioContext.destination);
-                
-                oscillator.frequency.setValueAtTime(400, audioContext.currentTime);
-                oscillator.frequency.exponentialRampToValueAtTime(800, audioContext.currentTime + 0.5);
-                
-                gainNode.gain.setValueAtTime(0.5, audioContext.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
-                
-                oscillator.start(audioContext.currentTime);
-                oscillator.stop(audioContext.currentTime + 0.5);
-                
-                setTimeout(() => {
-                    this.specialMessageElement.classList.remove('show');
-                }, 3000);
+                    this.audioSystem.playSpecial();
+                    this.uiManager.showSpecialMessage();
+                }, CONFIG.ANIMATION_DURATION);
             }
 
             reset() {
                 this.cats.forEach(cat => cat.remove());
-                this.cats = [];
-                this.catCount = 0;
+                this.cats.clear();
                 this.isTriangleForming = false;
-                this.triangleStatusElement.textContent = 'INACTIVE';
-                this.statusElement.textContent = 'READY';
-                this.catsCountElement.textContent = '0';
-                this.specialMessageElement.classList.remove('show');
+                this.updateUI();
+                this.uiManager.elements.specialMessage.classList.remove('show');
+                
+                // Show instruction again
+                if (this.uiManager.elements.instruction) {
+                    this.uiManager.elements.instruction.style.display = 'block';
+                    this.uiManager.elements.instruction.classList.remove('fade-out');
+                }
             }
         }
 
-        // Initialize the cat spawner
-        const catSpawner = new CatSpawner();
-
-        // Global reset function
-        function resetCats() {
-            catSpawner.reset();
-        }
-
-        // Add some ambient sound on first click
-        let firstClick = true;
-        document.addEventListener('click', () => {
-            if (firstClick) {
-                firstClick = false;
-                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                const oscillator = audioContext.createOscillator();
-                const gainNode = audioContext.createGain();
+        // Initialize Application
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Load environment configuration first
+            await loadEnvironmentConfig();
+            // Apply theme from configuration
+            applyTheme(CONFIG.THEME);
+            
+            // Initialize analytics
+            initAnalytics();
+            
+            // Apply feature toggles
+            if (!CONFIG.FEATURES.ENABLE_SCANLINES) {
+                toggleScanlines(false);
+            }
+            
+            // Initialize the Cat Protocol
+            const catProtocol = new CatProtocol();
+            
+            // Add analytics event tracking
+            if (CONFIG.FEATURES.ENABLE_ANALYTICS && window.gtag) {
+                // Track cat spawns
+                const originalSpawnCat = catProtocol.spawnCat.bind(catProtocol);
+                catProtocol.spawnCat = function(x, y) {
+                    window.gtag('event', 'cat_spawn', {
+                        event_category: 'gameplay',
+                        event_label: `position_${Math.floor(x)}_${Math.floor(y)}`,
+                        value: this.cats.size + 1
+                    });
+                    return originalSpawnCat(x, y);
+                };
                 
-                oscillator.connect(gainNode);
-                gainNode.connect(audioContext.destination);
+                // Track triangle formations
+                const originalFormTriangle = catProtocol.formTriangle.bind(catProtocol);
+                catProtocol.formTriangle = function() {
+                    window.gtag('event', 'triangle_formation', {
+                        event_category: 'gameplay',
+                        event_label: 'triangle_activated',
+                        value: this.cats.size
+                    });
+                    return originalFormTriangle();
+                };
                 
-                oscillator.frequency.setValueAtTime(150, audioContext.currentTime);
-                oscillator.frequency.exponentialRampToValueAtTime(50, audioContext.currentTime + 1);
-                
-                gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 1);
-                
-                oscillator.start(audioContext.currentTime);
-                oscillator.stop(audioContext.currentTime + 1);
+                // Track resets
+                const originalReset = catProtocol.reset.bind(catProtocol);
+                catProtocol.reset = function() {
+                    window.gtag('event', 'game_reset', {
+                        event_category: 'gameplay',
+                        event_label: 'manual_reset',
+                        value: this.cats.size
+                    });
+                    return originalReset();
+                };
+            }
+            
+            // Expose for debugging and customization
+            window.CatProtocol = catProtocol;
+            window.CONFIG = CONFIG;
+            
+            console.log('🐱 Cat Protocol v2.0 Initialized');
+            console.log('Configuration:', CONFIG);
+            if (window.ENV && Object.keys(window.ENV).length > 0) {
+                console.log('Environment Variables:', window.ENV);
             }
         });
     </script>
